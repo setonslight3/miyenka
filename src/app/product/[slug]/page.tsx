@@ -13,6 +13,7 @@ import {
   primaryImage,
 } from '@/lib/commerce/catalogue';
 import { toMajor, type CurrencyCode } from '@/lib/commerce/money';
+import { jsonLdScript } from '@/lib/utils/json-ld';
 
 type Params = Promise<{ slug: string }>;
 
@@ -92,8 +93,7 @@ export default async function ProductPage({ params }: { params: Params }) {
     <>
       <script
         type="application/ld+json"
-        // Serialised from our own database rows, not user-controlled markup.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
 
       <div className="shell py-10 lg:py-16">

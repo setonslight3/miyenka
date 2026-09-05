@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { WhatsappLauncher } from '@/components/layout/WhatsappLauncher';
 import { getPublicSettings, getWhatsappContacts } from '@/lib/commerce/settings';
+import { jsonLdScript } from '@/lib/utils/json-ld';
 import '@/styles/globals.css';
 
 const display = Cormorant_Garamond({
@@ -95,8 +96,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="flex min-h-screen flex-col">
         <script
           type="application/ld+json"
-          // Built from our own constants, not from user input.
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationJsonLd) }}
         />
         <a
           href="#main"
