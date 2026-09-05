@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --header-height: 5.25rem;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-gold/25 text-ink;
+  }
+
+  /* Visible, brand-consistent focus for keyboard users. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-cream;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-sans text-[0.68rem] uppercase tracking-luxe text-ink-faint;
+  }
+
+  .display-xl {
+    @apply font-display text-[clamp(2.75rem,7vw,5.5rem)] font-light leading-[0.98] tracking-[-0.01em];
+  }
+
+  .display-lg {
+    @apply font-display text-[clamp(2rem,4.4vw,3.5rem)] font-light leading-[1.06];
+  }
+
+  .display-md {
+    @apply font-display text-[clamp(1.6rem,2.8vw,2.35rem)] font-light leading-[1.15];
+  }
+
+  .rule-gold {
+    @apply h-px w-16 bg-gradient-to-r from-gold/0 via-gold to-gold/0;
+  }
+
+  .shell {
+    @apply mx-auto w-full max-w-editorial px-5 sm:px-8 lg:px-12;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Hides scrollbars on horizontal editorial rails without losing scrollability. */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
