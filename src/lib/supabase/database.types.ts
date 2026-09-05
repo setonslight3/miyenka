@@ -1514,6 +1514,7 @@ export type Database = {
       decrement_inventory: { Args: { p_order_id: string }; Returns: { committed: boolean; reason: string; shortfalls?: Json } };
       get_setting: { Args: { setting_key: string; fallback?: Json }; Returns: Json };
       handle_new_user: { Args: Record<string, unknown>; Returns: Json };
+      increment_promotion_usage: { Args: { p_promotion_id: string }; Returns: number };
       is_active_admin: { Args: { check_user_id?: string }; Returns: boolean };
       is_owner: { Args: { check_user_id?: string }; Returns: boolean };
       next_order_number: { Args: Record<string, never>; Returns: string };

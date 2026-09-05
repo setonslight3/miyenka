@@ -17,7 +17,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 cleanup() { pkill -f "postgres -D $PGROOT/data" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
-cleanup; sleep 1
+cleanup
+for _ in $(seq 1 30); do
+  if ! (exec 3<>/dev/tcp/127.0.0.1/$PORT) 2>/dev/null; then break; fi
+  exec 3<&- 2>/dev/null || true
+  sleep 0.5
+done
 
 rm -rf "$PGROOT"; mkdir -p "$PGROOT"; chmod 777 "$PGROOT"
 if id postgres >/dev/null 2>&1 && [ "$(id -u)" = "0" ]; then
@@ -28,7 +33,10 @@ fi
 
 $RUN "PATH=$PG_BIN:\$PATH initdb -D $PGROOT/data -A trust -U postgres" >/dev/null
 $RUN "PATH=$PG_BIN:\$PATH pg_ctl -D $PGROOT/data -o '-p $PORT -k /tmp' -l $PGROOT/pg.log start" >/dev/null
-sleep 2
+for _ in $(seq 1 40); do
+  if pg_isready -h /tmp -p "$PORT" -U postgres >/dev/null 2>&1; then break; fi
+  sleep 0.5
+done
 
 PSQL="psql -h /tmp -p $PORT -U postgres -v ON_ERROR_STOP=1 -q"
 $PSQL -c "create database miyenka;" >/dev/null

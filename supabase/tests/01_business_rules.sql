@@ -189,7 +189,60 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------------
--- 6. Admin authorization
+-- 6. Webhook delivery de-duplication
+--
+-- The application relies on a unique-violation (SQLSTATE 23505) on
+-- (provider, event_signature) to drop a replayed provider delivery.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  v_duplicate_blocked boolean := false;
+  v_sqlstate text;
+begin
+  insert into payment_events (provider, event_type, event_signature, provider_reference, payload)
+  values ('paystack', 'charge.success', 'sig_replay_test', 'ref_replay', '{"ok":true}'::jsonb);
+
+  begin
+    insert into payment_events (provider, event_type, event_signature, provider_reference, payload)
+    values ('paystack', 'charge.success', 'sig_replay_test', 'ref_replay', '{"ok":true}'::jsonb);
+  exception when unique_violation then
+    v_duplicate_blocked := true;
+    v_sqlstate := SQLSTATE;
+  end;
+
+  perform assert(v_duplicate_blocked, 'replayed webhook delivery is rejected as a duplicate');
+  perform assert(v_sqlstate = '23505', 'duplicate delivery raises SQLSTATE 23505 as the handler expects');
+
+  -- The same signature from a different provider is a genuinely distinct event.
+  insert into payment_events (provider, event_type, event_signature, provider_reference, payload)
+  values ('flutterwave', 'charge.completed', 'sig_replay_test', 'ref_replay', '{"ok":true}'::jsonb);
+
+  perform assert(
+    (select count(*) from payment_events where event_signature = 'sig_replay_test') = 2,
+    'the same signature from a different provider is treated as a separate event');
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- 7. Promotion redemption counter
+-- ---------------------------------------------------------------------------
+do $$
+declare v_promo uuid; v_count integer;
+begin
+  insert into promotions (code, type, value, usage_limit)
+  values ('TESTPROMO', 'percentage', 10, 2)
+  returning id into v_promo;
+
+  perform increment_promotion_usage(v_promo);
+  select usage_count into v_count from promotions where id = v_promo;
+  perform assert(v_count = 1, 'promotion usage increments once per redemption');
+
+  perform increment_promotion_usage(v_promo);
+  select usage_count into v_count from promotions where id = v_promo;
+  perform assert(v_count = 2, 'promotion usage accumulates');
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- 8. Admin authorization
 -- ---------------------------------------------------------------------------
 do $$
 begin

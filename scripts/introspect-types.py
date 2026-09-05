@@ -160,6 +160,7 @@ PRECISE = {
     'next_quote_number': '{ Args: Record<string, never>; Returns: string }',
     'get_setting': '{ Args: { setting_key: string; fallback?: Json }; Returns: Json }',
     'product_rating': '{ Args: { p_product_id: string }; Returns: { average: number | null; total: number }[] }',
+    'increment_promotion_usage': '{ Args: { p_promotion_id: string }; Returns: number }',
     'reviewable_items': '{ Args: { p_user_id?: string }; Returns: { order_item_id: string; order_id: string; order_number: string; product_id: string; product_name: string; product_slug: string | null; image_url: string | null; delivered_at: string | null }[] }',
 }
 
