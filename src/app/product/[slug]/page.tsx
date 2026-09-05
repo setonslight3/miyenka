@@ -12,7 +12,7 @@ import {
   listPublishedReviews,
   primaryImage,
 } from '@/lib/commerce/catalogue';
-import { formatMoney, toMajor, type CurrencyCode } from '@/lib/commerce/money';
+import { toMajor, type CurrencyCode } from '@/lib/commerce/money';
 
 type Params = Promise<{ slug: string }>;
 
@@ -56,7 +56,6 @@ export default async function ProductPage({ params }: { params: Params }) {
     }),
   ]);
 
-  const cover = primaryImage(product.images ?? []);
   const currency = (product.currency as CurrencyCode) ?? 'NGN';
   const inStock = product.variants.some((v) => v.sizes.some((s) => s.is_active && s.quantity > 0));
 

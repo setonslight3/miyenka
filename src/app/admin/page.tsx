@@ -7,11 +7,20 @@ import { formatMoney } from '@/lib/commerce/money';
 export const metadata: Metadata = { title: 'Admin', robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
 
+/**
+ * Start of the reporting window. This is a Server Component, so reading the
+ * clock here is correct — the figures are computed per request, not cached
+ * into a client render.
+ */
+function reportingWindowStart(): string {
+  return new Date(Date.now() - 30 * 86_400_000).toISOString();
+}
+
 export default async function AdminOverview() {
   await requireAdmin();
   const supabase = createAdminClient();
 
-  const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const since = reportingWindowStart();
 
   const [
     { data: paidOrders },

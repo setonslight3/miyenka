@@ -6,7 +6,6 @@ import type {
   ProductDetail,
   ProductImage,
   ProductSummary,
-  ProductVariant,
 } from '@/lib/commerce/catalogue.shared';
 
 export type {

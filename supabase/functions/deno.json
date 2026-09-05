@@ -1,0 +1,9 @@
+{
+  "//": "Supabase Edge Functions run on Deno, not on the Next.js toolchain. They are excluded from the app's tsconfig and typechecked by the Supabase CLI instead.",
+  "imports": {
+    "@supabase/supabase-js": "jsr:@supabase/supabase-js@2"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "esnext"]
+  }
+}

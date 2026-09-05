@@ -58,12 +58,46 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+// Organization and site-search structured data, emitted once site-wide.
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'Miyenka',
+      url: siteUrl,
+      logo: `${siteUrl}/brand/miyenka-logo-gold.png`,
+      description:
+        'Luxury fashion house for mini, midi, maxi and statement gowns. Ready-to-wear and bespoke, cut and finished by hand.',
+      slogan: 'Fashion is your first voice',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: 'Miyenka',
+      publisher: { '@id': `${siteUrl}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${siteUrl}/search?q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+};
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [settings, contacts] = await Promise.all([getPublicSettings(), getWhatsappContacts()]);
 
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col">
+        <script
+          type="application/ld+json"
+          // Built from our own constants, not from user input.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-5 focus:py-3 focus:text-cream"

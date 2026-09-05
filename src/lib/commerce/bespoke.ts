@@ -118,8 +118,18 @@ export async function loadQuoteByToken(token: string) {
   };
 }
 
+/**
+ * Whether a quotation has passed its expiry.
+ *
+ * Evaluated on the server against the server clock — never in the browser,
+ * which would both risk a hydration mismatch and trust a clock we do not
+ * control.
+ */
+export function isQuoteExpired(quote: { expiresAt: string | null }): boolean {
+  return Boolean(quote.expiresAt && new Date(quote.expiresAt).getTime() < Date.now());
+}
+
 export function isQuotePayable(quote: { status: string; expiresAt: string | null }): boolean {
   if (quote.status !== 'sent') return false;
-  if (quote.expiresAt && new Date(quote.expiresAt).getTime() < Date.now()) return false;
-  return true;
+  return !isQuoteExpired(quote);
 }

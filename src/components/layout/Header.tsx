@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { useCart } from '@/components/cart/CartProvider';
 import { cn } from '@/lib/utils/cn';
@@ -21,6 +21,7 @@ export function Header({ announcement }: { announcement?: { message: string; hre
   const { count, hydrated, openCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -28,9 +29,6 @@ export function Header({ announcement }: { announcement?: { message: string; hre
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // Close the mobile drawer whenever navigation happens.
-  useEffect(() => setMenuOpen(false), [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -139,7 +137,7 @@ export function Header({ announcement }: { announcement?: { message: string; hre
         <button
           type="button"
           aria-label="Close menu"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
           className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
         />
         <div
@@ -150,26 +148,23 @@ export function Header({ announcement }: { announcement?: { message: string; hre
         >
           <div className="flex items-center justify-between">
             <Logo size={34} />
-            <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu" className="p-2">
+            <button type="button" onClick={closeMenu} aria-label="Close menu" className="p-2">
               <CloseIcon />
             </button>
           </div>
           <nav aria-label="Mobile" className="mt-10 flex flex-col gap-1">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="border-b border-ink/8 py-4 font-display text-2xl font-light hover:text-gold-deep transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <Link href="/account" className="border-b border-ink/8 py-4 font-display text-2xl font-light">
-              Account
-            </Link>
-            <Link href="/track-order" className="border-b border-ink/8 py-4 font-display text-2xl font-light">
-              Track Order
-            </Link>
+            {[...NAV, { href: '/account', label: 'Account' }, { href: '/track-order', label: 'Track Order' }].map(
+              (item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  className="border-b border-ink/8 py-4 font-display text-2xl font-light transition-colors hover:text-gold-deep"
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
         </div>
       </div>

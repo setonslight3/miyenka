@@ -39,11 +39,18 @@ const PROVIDER_LABELS: Record<PaymentProvider, string> = {
 export function QuotePanel({
   quote,
   payable,
+  expired,
   providers,
   careContacts,
 }: {
   quote: Quote;
   payable: boolean;
+  /**
+   * Decided on the server. Comparing the expiry against the browser clock
+   * during render would risk a hydration mismatch and would trust a clock we
+   * do not control.
+   */
+  expired: boolean;
   providers: PaymentProvider[];
   careContacts: CareContact[];
 }) {
@@ -53,7 +60,6 @@ export function QuotePanel({
 
   const currency = (quote.currency as CurrencyCode) ?? 'NGN';
   const paid = quote.status === 'paid';
-  const expired = Boolean(quote.expiresAt && new Date(quote.expiresAt).getTime() < Date.now());
 
   async function pay() {
     if (!provider) return;

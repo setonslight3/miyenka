@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { QuotePanel } from '@/components/product/QuotePanel';
-import { isQuotePayable, loadQuoteByToken } from '@/lib/commerce/bespoke';
+import { isQuoteExpired, isQuotePayable, loadQuoteByToken } from '@/lib/commerce/bespoke';
 import { availableProviders } from '@/lib/payments';
 import { getWhatsappContacts } from '@/lib/commerce/settings';
 
@@ -28,6 +28,7 @@ export default async function QuotePage({ params }: { params: Promise<{ token: s
     <QuotePanel
       quote={quote}
       payable={isQuotePayable(quote)}
+      expired={isQuoteExpired(quote)}
       providers={providers}
       careContacts={contacts}
     />

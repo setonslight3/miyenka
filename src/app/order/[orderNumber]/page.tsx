@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+
 import { OrderDetail } from '@/components/cart/OrderDetail';
 import { GuestOrderGate } from '@/components/cart/GuestOrderGate';
 import { canCancel, loadOrderForViewer } from '@/lib/commerce/order-lookup';
