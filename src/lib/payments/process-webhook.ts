@@ -138,8 +138,16 @@ export async function processPaymentWebhook(
       })
       .eq('id', payment.id);
 
+    // A bespoke quotation payment converts the quote into a production order
+    // rather than committing ready-to-wear stock.
+    if (!payment.order_id && payment.custom_quote_id) {
+      const outcome = await convertQuoteToOrder(payment.custom_quote_id, payment.id);
+      await finishEvent(event.id);
+      return { status: 200, body: outcome };
+    }
+
     if (!payment.order_id) {
-      await finishEvent(event.id, 'Payment verified but carries no order.');
+      await finishEvent(event.id, 'Payment verified but carries no order or quote.');
       return { status: 200, body: { status: 'payment_recorded_without_order' } };
     }
 
@@ -222,6 +230,93 @@ export async function processPaymentWebhook(
     // A 500 invites the provider to retry, and the event row makes that safe.
     return { status: 500, body: { error: 'Processing failed.' } };
   }
+}
+
+/**
+ * Turns a paid bespoke quotation into an order.
+ *
+ * Bespoke production is independent of ready-to-wear inventory, so no stock is
+ * touched. Guarded on the quote's own status so a replayed webhook cannot
+ * create a second order for the same quotation.
+ */
+async function convertQuoteToOrder(quoteId: string, paymentId: string) {
+  const supabase = createAdminClient();
+
+  const { data: quote } = await supabase
+    .from('custom_quotes')
+    .select('*, request:custom_requests (*)')
+    .eq('id', quoteId)
+    .maybeSingle();
+
+  if (!quote) return { status: 'quote_not_found' };
+
+  if (quote.status === 'paid' && quote.order_id) {
+    return { status: 'quote_already_converted', orderId: quote.order_id };
+  }
+
+  const request = Array.isArray(quote.request) ? quote.request[0] : quote.request;
+
+  const { data: orderNumber } = await supabase.rpc('next_order_number');
+
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      order_number: orderNumber ?? `MB-${Date.now()}`,
+      user_id: request?.user_id ?? null,
+      guest_email: request?.user_id ? null : (request?.contact_email ?? null),
+      contact_phone: request?.contact_phone ?? null,
+      status: 'confirmed',
+      order_type: 'bespoke',
+      subtotal_minor: quote.amount_minor,
+      shipping_minor: quote.shipping_minor,
+      total_minor: quote.total_minor,
+      currency: quote.currency,
+      display_currency: quote.currency,
+      confirmed_at: new Date().toISOString(),
+      // Bespoke pieces enter production immediately, so there is no
+      // self-cancellation window once cutting begins.
+      cancellation_deadline: null,
+      customer_note: request?.modification_notes ?? null,
+    })
+    .select('id')
+    .single();
+
+  if (orderError || !order) {
+    console.error('Could not create bespoke order', orderError);
+    return { status: 'bespoke_order_failed' };
+  }
+
+  await supabase.from('order_items').insert({
+    order_id: order.id,
+    product_id: request?.product_id ?? null,
+    product_name: request?.product_id
+      ? 'Bespoke commission'
+      : `Bespoke commission ${request?.reference ?? ''}`.trim(),
+    unit_price_minor: quote.amount_minor,
+    quantity: 1,
+    line_total_minor: quote.amount_minor,
+    currency: quote.currency,
+    is_bespoke: true,
+  });
+
+  await supabase
+    .from('custom_quotes')
+    .update({ status: 'paid', paid_at: new Date().toISOString(), order_id: order.id })
+    .eq('id', quoteId);
+
+  if (request?.id) {
+    await supabase
+      .from('custom_requests')
+      .update({ status: 'paid_in_production' })
+      .eq('id', request.id);
+  }
+
+  await supabase.from('payments').update({ order_id: order.id }).eq('id', paymentId);
+
+  await recordStatusChange(order.id, null, 'confirmed', 'Bespoke quotation paid; entering production.');
+  await sendOrderConfirmation(order.id);
+
+  return { status: 'bespoke_order_created', orderId: order.id };
 }
 
 async function finishEvent(eventId: string, error?: string) {
