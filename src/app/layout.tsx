@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Jost } from 'next/font/google';
 import { CartProvider } from '@/components/cart/CartProvider';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -92,7 +93,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [settings, contacts] = await Promise.all([getPublicSettings(), getWhatsappContacts()]);
 
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+    <html lang="en" className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('miyenka-theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="flex min-h-screen flex-col">
         <script
           type="application/ld+json"
@@ -105,14 +113,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Skip to content
         </a>
 
-        <CartProvider>
-          <Header announcement={settings.announcement.enabled ? settings.announcement : null} />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer />
-          <CartDrawer freeShippingThresholdMinor={settings.freeShippingThresholdMinor} />
-        </CartProvider>
+        <ThemeProvider>
+          <CartProvider>
+            <Header announcement={settings.announcement.enabled ? settings.announcement : null} />
+            <main id="main" className="flex-1">
+              {children}
+            </main>
+            <Footer />
+            <CartDrawer freeShippingThresholdMinor={settings.freeShippingThresholdMinor} />
+          </CartProvider>
+        </ThemeProvider>
 
         <WhatsappLauncher contacts={contacts} />
       </body>

@@ -5,6 +5,28 @@
 @layer base {
   :root {
     --header-height: 5.25rem;
+
+    /* Light palette (Haute Couture Ivory & Onyx) */
+    --color-ink: 16 13 11;
+    --color-ink-soft: 42 36 34;
+    --color-ink-muted: 92 83 78;
+    --color-ink-faint: 140 129 122;
+
+    --color-cream: 250 246 241;
+    --color-cream-deep: 242 234 224;
+    --color-cream-shell: 232 220 206;
+  }
+
+  .dark {
+    /* Dark palette (Haute Couture Obsidian & Champagne) */
+    --color-ink: 246 242 236;
+    --color-ink-soft: 228 221 213;
+    --color-ink-muted: 168 158 150;
+    --color-ink-faint: 122 113 106;
+
+    --color-cream: 14 12 11;
+    --color-cream-deep: 22 19 18;
+    --color-cream-shell: 34 29 27;
   }
 
   html {
@@ -13,7 +35,7 @@
   }
 
   body {
-    @apply bg-cream text-ink font-sans antialiased;
+    @apply bg-cream text-ink font-sans antialiased transition-colors duration-300;
   }
 
   ::selection {

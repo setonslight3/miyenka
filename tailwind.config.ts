@@ -6,20 +6,21 @@ import type { Config } from 'tailwindcss';
  * pink is an accent only, burgundy/red supplies controlled fashion accents.
  */
 const config: Config = {
+  darkMode: 'class',
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         ink: {
-          DEFAULT: '#100D0B',
-          soft: '#2A2422',
-          muted: '#5C534E',
-          faint: '#8C817A',
+          DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+          soft: 'rgb(var(--color-ink-soft) / <alpha-value>)',
+          muted: 'rgb(var(--color-ink-muted) / <alpha-value>)',
+          faint: 'rgb(var(--color-ink-faint) / <alpha-value>)',
         },
         cream: {
-          DEFAULT: '#FAF6F1',
-          deep: '#F2EAE0',
-          shell: '#E8DCCE',
+          DEFAULT: 'rgb(var(--color-cream) / <alpha-value>)',
+          deep: 'rgb(var(--color-cream-deep) / <alpha-value>)',
+          shell: 'rgb(var(--color-cream-shell) / <alpha-value>)',
         },
         gold: {
           DEFAULT: '#C9A227',

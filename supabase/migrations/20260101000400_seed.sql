@@ -46,7 +46,7 @@ on conflict (key) do nothing;
 -- Customer care
 -- ---------------------------------------------------------------------------
 insert into whatsapp_contacts (label, phone_e164, greeting, is_active, position) values
-  ('Customer Care 1', '+2348000000001',
+  ('Miyenka Client Care', '+2347076010331',
    'Hello Miyenka, I would like some help with', true, 1)
 on conflict do nothing;
 

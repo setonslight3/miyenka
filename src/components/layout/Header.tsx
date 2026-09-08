@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { Logo } from '@/components/ui/Logo';
 import { useCart } from '@/components/cart/CartProvider';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { cn } from '@/lib/utils/cn';
 
 const NAV = [
@@ -100,7 +101,8 @@ export function Header({ announcement }: { announcement?: { message: string; hre
             })}
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <ThemeToggle />
             <Link href="/search" aria-label="Search" className="p-2 text-ink-muted hover:text-ink transition-colors">
               <SearchIcon />
             </Link>
@@ -166,6 +168,10 @@ export function Header({ announcement }: { announcement?: { message: string; hre
               ),
             )}
           </nav>
+          <div className="mt-8 flex items-center justify-between border-t border-ink/8 pt-5">
+            <span className="text-xs uppercase tracking-luxe text-ink-faint">Appearance</span>
+            <ThemeToggle showLabel />
+          </div>
         </div>
       </div>
     </>
