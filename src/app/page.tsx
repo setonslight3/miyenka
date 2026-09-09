@@ -2,8 +2,6 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Hero } from '@/components/home/Hero';
 import { CollectionFeature } from '@/components/home/CollectionFeature';
-import { ArtistryInMotion } from '@/components/home/ArtistryInMotion';
-import { EditorialFeature } from '@/components/home/EditorialFeature';
 import { Testimonials } from '@/components/home/Testimonials';
 import { ProductCard } from '@/components/product/ProductCard';
 import { SectionHeading } from '@/components/ui/SectionHeading';
@@ -54,9 +52,6 @@ export default async function HomePage() {
           reverse
         />
       ) : null}
-
-      <ArtistryInMotion />
-      <EditorialFeature />
 
       <section className="shell py-24 lg:py-32">
         <SectionHeading

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SectionHeading } from '@/components/ui/SectionHeading';
+import { ArtistryInMotion } from '@/components/home/ArtistryInMotion';
 
 export const metadata: Metadata = {
   title: 'About Miyenka',
@@ -57,6 +58,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <ArtistryInMotion />
 
       <section className="bg-cream-deep/50 py-20 lg:py-28">
         <div className="shell">
